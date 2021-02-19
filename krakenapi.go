@@ -34,6 +34,7 @@ var publicMethods = []string{
 	"Depth",
 	"OHLC",
 	"OHLCWithInterval",
+	"AssetPairsMap",
 	"Spread",
 	"Ticker",
 	"Time",
@@ -152,6 +153,16 @@ func (api *KrakenAPI) AssetPairs() (*AssetPairsResponse, error) {
 	}
 
 	return resp.(*AssetPairsResponse), nil
+}
+
+// AssetPairs returns the servers available asset pairs
+func (api *KrakenAPI) AssetPairsMap() (*map[string]AssetPairInfo, error) {
+	resp, err := api.queryPublic("AssetPairs", nil, &map[string]AssetPairInfo{})
+	if err != nil {
+		return nil, err
+	}
+
+	return resp.(*map[string]AssetPairInfo), nil
 }
 
 // Ticker returns the ticker for given comma separated pairs
