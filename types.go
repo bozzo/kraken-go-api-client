@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
-	"reflect"
 	"strconv"
 	"time"
 )
@@ -109,79 +108,24 @@ type TimeResponse struct {
 }
 
 // AssetPairsResponse includes asset pair informations
-type AssetPairsResponse struct {
-	ADACAD   AssetPairInfo
-	AAVEUSD  AssetPairInfo
-	ADAETH   AssetPairInfo
-	ADAEUR   AssetPairInfo
-	ADAUSD   AssetPairInfo
-	ADAXBT   AssetPairInfo
-	BCHEUR   AssetPairInfo
-	BCHUSD   AssetPairInfo
-	BCHXBT   AssetPairInfo
-	DASHEUR  AssetPairInfo
-	DASHUSD  AssetPairInfo
-	DASHXBT  AssetPairInfo
-	EOSETH   AssetPairInfo
-	EOSEUR   AssetPairInfo
-	EOSUSD   AssetPairInfo
-	EOSXBT   AssetPairInfo
-	GNOETH   AssetPairInfo
-	GNOEUR   AssetPairInfo
-	GNOUSD   AssetPairInfo
-	GNOXBT   AssetPairInfo
-	QTUMCAD  AssetPairInfo
-	QTUMETH  AssetPairInfo
-	QTUMEUR  AssetPairInfo
-	QTUMUSD  AssetPairInfo
-	QTUMXBT  AssetPairInfo
-	USDTZUSD AssetPairInfo
-	XETCXETH AssetPairInfo
-	XETCXXBT AssetPairInfo
-	XETCZEUR AssetPairInfo
-	XETCZUSD AssetPairInfo
-	XETHXXBT AssetPairInfo
-	XETHZCAD AssetPairInfo
-	XETHZEUR AssetPairInfo
-	XETHZGBP AssetPairInfo
-	XETHZJPY AssetPairInfo
-	XETHZUSD AssetPairInfo
-	XICNXETH AssetPairInfo
-	XICNXXBT AssetPairInfo
-	XLTCXXBT AssetPairInfo
-	XLTCZEUR AssetPairInfo
-	XLTCZUSD AssetPairInfo
-	XMLNXETH AssetPairInfo
-	XMLNXXBT AssetPairInfo
-	XREPXETH AssetPairInfo
-	XREPXXBT AssetPairInfo
-	XREPZEUR AssetPairInfo
-	XREPZUSD AssetPairInfo
-	XTZCAD   AssetPairInfo
-	XTZETH   AssetPairInfo
-	XTZEUR   AssetPairInfo
-	XTZUSD   AssetPairInfo
-	XTZXBT   AssetPairInfo
-	XXBTZCAD AssetPairInfo
-	XXBTZEUR AssetPairInfo
-	XXBTZGBP AssetPairInfo
-	XXBTZJPY AssetPairInfo
-	XXBTZUSD AssetPairInfo
-	XXDGXXBT AssetPairInfo
-	XXLMXXBT AssetPairInfo
-	XXLMZEUR AssetPairInfo
-	XXLMZUSD AssetPairInfo
-	XXMRXXBT AssetPairInfo
-	XXMRZEUR AssetPairInfo
-	XXMRZUSD AssetPairInfo
-	XXRPXXBT AssetPairInfo
-	XXRPZCAD AssetPairInfo
-	XXRPZEUR AssetPairInfo
-	XXRPZJPY AssetPairInfo
-	XXRPZUSD AssetPairInfo
-	XZECXXBT AssetPairInfo
-	XZECZEUR AssetPairInfo
-	XZECZUSD AssetPairInfo
+type AssetPairsResponse interface {
+	// GetAsset is a helper method that returns given `pair`'s `AssetInfo`
+	GetAssetPair(pair string) AssetPairInfo
+	GetPairs() []string
+}
+
+type AssetPairs map[string]AssetPairInfo
+
+func (ap *AssetPairs) GetAssetPair(pair string) AssetPairInfo {
+	return (*ap)[pair]
+}
+
+func (ap *AssetPairs) GetPairs() []string {
+	var pairs []string
+	for pair, _ := range *ap {
+		pairs = append(pairs, pair)
+	}
+	return pairs
 }
 
 // AssetPairInfo represents asset pair information
@@ -221,38 +165,24 @@ type AssetPairInfo struct {
 }
 
 // AssetsResponse includes asset informations
-type AssetsResponse struct {
-	ADA  AssetInfo
-	AAVE AssetInfo
-	BCH  AssetInfo
-	DASH AssetInfo
-	EOS  AssetInfo
-	GNO  AssetInfo
-	KFEE AssetInfo
-	QTUM AssetInfo
-	USDT AssetInfo
-	XDAO AssetInfo
-	XETC AssetInfo
-	XETH AssetInfo
-	XICN AssetInfo
-	XLTC AssetInfo
-	XMLN AssetInfo
-	XNMC AssetInfo
-	XREP AssetInfo
-	XXBT AssetInfo
-	XXDG AssetInfo
-	XXLM AssetInfo
-	XXMR AssetInfo
-	XXRP AssetInfo
-	XTZ  AssetInfo
-	XXVN AssetInfo
-	XZEC AssetInfo
-	ZCAD AssetInfo
-	ZEUR AssetInfo
-	ZGBP AssetInfo
-	ZJPY AssetInfo
-	ZKRW AssetInfo
-	ZUSD AssetInfo
+type AssetsResponse interface {
+	// GetAsset is a helper method that returns given `pair`'s `AssetInfo`
+	GetAsset(asset string) AssetInfo
+	GetAssets() []string
+}
+
+type Assets map[string]AssetInfo
+
+func (a *Assets) GetAsset(asset string) AssetInfo {
+	return (*a)[asset]
+}
+
+func (a *Assets) GetAssets() []string {
+	var assets []string
+	for asset, _ := range *a {
+		assets = append(assets, asset)
+	}
+	return assets
 }
 
 // AssetInfo represents an asset information
@@ -267,40 +197,23 @@ type AssetInfo struct {
 	DisplayDecimals int `json:"display_decimals"`
 }
 
-// BalanceResponse represents the account's balances (list of currencies)
-type BalanceResponse struct {
-	ADA  float64 `json:"ADA,string"`
-	AAVE float64 `json:"AAVE,string"`
-	BCH  float64 `json:"BCH,string"`
-	DASH float64 `json:"DASH,string"`
-	EOS  float64 `json:"EOS,string"`
-	GNO  float64 `json:"GNO,string"`
-	QTUM float64 `json:"QTUM,string"`
-	KFEE float64 `json:"KFEE,string"`
-	USDT float64 `json:"USDT,string"`
-	XDAO float64 `json:"XDAO,string"`
-	XETC float64 `json:"XETC,string"`
-	XETH float64 `json:"XETH,string"`
-	XICN float64 `json:"XICN,string"`
-	XLTC float64 `json:"XLTC,string"`
-	XMLN float64 `json:"XMLN,string"`
-	XNMC float64 `json:"XNMC,string"`
-	XREP float64 `json:"XREP,string"`
-	XXBT float64 `json:"XXBT,string"`
-	XXDG float64 `json:"XXDG,string"`
-	XXLM float64 `json:"XXLM,string"`
-	XXMR float64 `json:"XXMR,string"`
-	XXRP float64 `json:"XXRP,string"`
-	XTZ  float64 `json:"XTZ,string"`
-	XXVN float64 `json:"XXVN,string"`
-	XZEC float64 `json:"XZEC,string"`
-	ZCAD float64 `json:"ZCAD,string"`
-	ZEUR float64 `json:"ZEUR,string"`
-	ZGBP float64 `json:"ZGBP,string"`
-	ZJPY float64 `json:"ZJPY,string"`
-	ZKRW float64 `json:"ZKRW,string"`
-	ZUSD float64 `json:"ZUSD,string"`
-	TRX  float64 `json:"TRX,string"`
+type BalanceResponse interface {
+	// GetBalance is a helper method that returns given `pair`'s balance
+	GetBalance(pair string) float64
+	GetPairs() []string
+}
+type Balances map[string]float64
+
+func (b *Balances) GetBalance(pair string) float64 {
+	return (*b)[pair]
+}
+
+func (b *Balances) GetPairs() []string {
+	var pairs []string
+	for pair, _ := range *b {
+		pairs = append(pairs, pair)
+	}
+	return pairs
 }
 
 // TradeBalanceResponse struct used as the response for the TradeBalance method
@@ -316,80 +229,24 @@ type TradeBalanceResponse struct {
 	MarginLevel               float64 `json:"ml,string"`
 }
 
-// Fees includes fees information for different currencies
-type Fees struct {
-	ADACAD   FeeInfo
-	ADAETH   FeeInfo
-	ADAEUR   FeeInfo
-	ADAUSD   FeeInfo
-	ADAXBT   FeeInfo
-	AAVEUSD  FeeInfo
-	BCHEUR   FeeInfo
-	BCHUSD   FeeInfo
-	BCHXBT   FeeInfo
-	DASHEUR  FeeInfo
-	DASHUSD  FeeInfo
-	DASHXBT  FeeInfo
-	EOSETH   FeeInfo
-	EOSEUR   FeeInfo
-	EOSUSD   FeeInfo
-	EOSXBT   FeeInfo
-	GNOETH   FeeInfo
-	GNOEUR   FeeInfo
-	GNOUSD   FeeInfo
-	GNOXBT   FeeInfo
-	QTUMCAD  FeeInfo
-	QTUMETH  FeeInfo
-	QTUMEUR  FeeInfo
-	QTUMUSD  FeeInfo
-	QTUMXBT  FeeInfo
-	USDTZUSD FeeInfo
-	XETCXETH FeeInfo
-	XETCXXBT FeeInfo
-	XETCZEUR FeeInfo
-	XETCZUSD FeeInfo
-	XETHXXBT FeeInfo
-	XETHZCAD FeeInfo
-	XETHZEUR FeeInfo
-	XETHZGBP FeeInfo
-	XETHZJPY FeeInfo
-	XETHZUSD FeeInfo
-	XICNXETH FeeInfo
-	XICNXXBT FeeInfo
-	XLTCXXBT FeeInfo
-	XLTCZEUR FeeInfo
-	XLTCZUSD FeeInfo
-	XMLNXETH FeeInfo
-	XMLNXXBT FeeInfo
-	XREPXETH FeeInfo
-	XREPXXBT FeeInfo
-	XREPZEUR FeeInfo
-	XREPZUSD FeeInfo
-	XTZCAD   FeeInfo
-	XTZETH   FeeInfo
-	XTZEUR   FeeInfo
-	XTZUSD   FeeInfo
-	XTZXBT   FeeInfo
-	XXBTZCAD FeeInfo
-	XXBTZEUR FeeInfo
-	XXBTZGBP FeeInfo
-	XXBTZJPY FeeInfo
-	XXBTZUSD FeeInfo
-	XXDGXXBT FeeInfo
-	XXLMXXBT FeeInfo
-	XXLMZEUR FeeInfo
-	XXLMZUSD FeeInfo
-	XXMRXXBT FeeInfo
-	XXMRZEUR FeeInfo
-	XXMRZUSD FeeInfo
-	XXRPXXBT FeeInfo
-	XXRPZCAD FeeInfo
-	XXRPZEUR FeeInfo
-	XXRPZJPY FeeInfo
-	XXRPZUSD FeeInfo
-	XZECXXBT FeeInfo
-	XZECZEUR FeeInfo
-	XZECZUSD FeeInfo
+type Fees interface {
+	// GetFeeInfo is a helper method that returns given `pair`'s `FeeInfo`
+	GetFeeInfo(pair string) FeeInfo
+	GetPairs() []string
+}
+
+type FeesMap map[string]FeeInfo
+
+func (f *FeesMap) GetFeeInfo(pair string) FeeInfo {
+	return (*f)[pair]
+}
+
+func (f *FeesMap) GetPairs() []string {
+	var pairs []string
+	for pair, _ := range *f {
+		pairs = append(pairs, pair)
+	}
+	return pairs
 }
 
 // FeeInfo represents a fee information
@@ -411,80 +268,24 @@ type TradeVolumeResponse struct {
 }
 
 // TickerResponse includes the requested ticker pairs
-type TickerResponse struct {
-	ADACAD   PairTickerInfo
-	ADAETH   PairTickerInfo
-	ADAEUR   PairTickerInfo
-	ADAUSD   PairTickerInfo
-	ADAXBT   PairTickerInfo
-	AAVEUSD  PairTickerInfo
-	BCHEUR   PairTickerInfo
-	BCHUSD   PairTickerInfo
-	BCHXBT   PairTickerInfo
-	DASHEUR  PairTickerInfo
-	DASHUSD  PairTickerInfo
-	DASHXBT  PairTickerInfo
-	EOSETH   PairTickerInfo
-	EOSEUR   PairTickerInfo
-	EOSUSD   PairTickerInfo
-	EOSXBT   PairTickerInfo
-	GNOETH   PairTickerInfo
-	GNOEUR   PairTickerInfo
-	GNOUSD   PairTickerInfo
-	GNOXBT   PairTickerInfo
-	QTUMCAD  PairTickerInfo
-	QTUMETH  PairTickerInfo
-	QTUMEUR  PairTickerInfo
-	QTUMUSD  PairTickerInfo
-	QTUMXBT  PairTickerInfo
-	USDTZUSD PairTickerInfo
-	XBTUSDT  PairTickerInfo
-	XETCXETH PairTickerInfo
-	XETCXXBT PairTickerInfo
-	XETCZEUR PairTickerInfo
-	XETCZUSD PairTickerInfo
-	XETHXXBT PairTickerInfo
-	XETHZCAD PairTickerInfo
-	XETHZEUR PairTickerInfo
-	XETHZGBP PairTickerInfo
-	XETHZJPY PairTickerInfo
-	XETHZUSD PairTickerInfo
-	XICNXETH PairTickerInfo
-	XICNXXBT PairTickerInfo
-	XLTCXXBT PairTickerInfo
-	XLTCZEUR PairTickerInfo
-	XLTCZUSD PairTickerInfo
-	XMLNXETH PairTickerInfo
-	XMLNXXBT PairTickerInfo
-	XREPXETH PairTickerInfo
-	XREPXXBT PairTickerInfo
-	XREPZEUR PairTickerInfo
-	XREPZUSD PairTickerInfo
-	XXBTZCAD PairTickerInfo
-	XXBTZEUR PairTickerInfo
-	XXBTZGBP PairTickerInfo
-	XXBTZJPY PairTickerInfo
-	XXBTZUSD PairTickerInfo
-	XXDGXXBT PairTickerInfo
-	XXLMXXBT PairTickerInfo
-	XXLMZEUR PairTickerInfo
-	XXLMZUSD PairTickerInfo
-	XXMRXXBT PairTickerInfo
-	XXMRZEUR PairTickerInfo
-	XXMRZUSD PairTickerInfo
-	XXRPXXBT PairTickerInfo
-	XXRPZCAD PairTickerInfo
-	XXRPZEUR PairTickerInfo
-	XXRPZJPY PairTickerInfo
-	XXRPZUSD PairTickerInfo
-	XTZCAD   PairTickerInfo
-	XTZETH   PairTickerInfo
-	XTZEUR   PairTickerInfo
-	XTZUSD   PairTickerInfo
-	XTZXBT   PairTickerInfo
-	XZECXXBT PairTickerInfo
-	XZECZEUR PairTickerInfo
-	XZECZUSD PairTickerInfo
+type TickerResponse interface {
+	// GetPairTickerInfo is a helper method that returns given `pair`'s `PairTickerInfo`
+	GetPairTickerInfo(pair string) PairTickerInfo
+	GetPairs() []string
+}
+
+type Tickers map[string]PairTickerInfo
+
+func (t *Tickers) GetPairTickerInfo(pair string) PairTickerInfo {
+	return (*t)[pair]
+}
+
+func (t *Tickers) GetPairs() []string {
+	var pairs []string
+	for pair, _ := range *t {
+		pairs = append(pairs, pair)
+	}
+	return pairs
 }
 
 // DepositAddressesResponse is the response type of a DepositAddresses query to the Kraken API.
@@ -505,14 +306,6 @@ type WithdrawInfoResponse struct {
 	Limit  big.Float `json:"limit"`
 	Amount big.Float `json:"amount"`
 	Fee    big.Float `json:"fee"`
-}
-
-// GetPairTickerInfo is a helper method that returns given `pair`'s `PairTickerInfo`
-func (v *TickerResponse) GetPairTickerInfo(pair string) PairTickerInfo {
-	r := reflect.ValueOf(v)
-	f := reflect.Indirect(r).FieldByName(pair)
-
-	return f.Interface().(PairTickerInfo)
 }
 
 // PairTickerInfo represents ticker information for a pair
@@ -750,5 +543,5 @@ type OHLC struct {
 type OHLCResponse struct {
 	Pair string  `json:"pair"`
 	OHLC []*OHLC `json:"OHLC"`
-	Last float64 `json:"last"`
+	Last int64   `json:"last"`
 }

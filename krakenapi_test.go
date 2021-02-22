@@ -1,43 +1,14 @@
 package krakenapi
 
 import (
-	"encoding/base64"
-	"net/url"
 	"reflect"
 	"testing"
 )
 
-var publicAPI = New("", "")
-
-func TestKrakenApi(t *testing.T) {
-	var kk interface{} = KrakenApi{
-		key:    "key",
-		secret: "secret",
-	}
-
-	name := reflect.TypeOf(kk).Name()
-	if name != "KrakenAPI" {
-		t.Errorf("Unexpected struct, got %s want %s", name, "KrakenAPI")
-	}
-}
-
-func TestCreateSignature(t *testing.T) {
-	expectedSig := "Uog0MyIKZmXZ4/VFOh0g1u2U+A0ohuK8oCh0HFUiHLE2Csm23CuPCDaPquh/hpnAg/pSQLeXyBELpJejgOftCQ=="
-	urlPath := "/0/private/"
-	secret, _ := base64.StdEncoding.DecodeString("SECRET")
-	values := url.Values{
-		"TestKey": {"TestValue"},
-	}
-
-	sig := createSignature(urlPath, values, secret)
-
-	if sig != expectedSig {
-		t.Errorf("Expected Signature to be %s, got: %s\n", expectedSig, sig)
-	}
-}
+var api = New("", "")
 
 func TestTime(t *testing.T) {
-	resp, err := publicAPI.Time()
+	resp, err := api.Public().Time()
 	if err != nil {
 		t.Errorf("Time() should not return an error, got %s", err)
 	}
@@ -48,36 +19,40 @@ func TestTime(t *testing.T) {
 }
 
 func TestAssets(t *testing.T) {
-	_, err := publicAPI.Assets()
+	_, err := api.Public().Assets()
 	if err != nil {
 		t.Errorf("Assets() should not return an error, got %s", err)
 	}
 }
 
 func TestAssetPairs(t *testing.T) {
-	resp, err := publicAPI.AssetPairs()
+	resp, err := api.Public().AssetPairs()
 	if err != nil {
 		t.Errorf("AssetPairs() should not return an error, got %s", err)
 	}
 
-	if resp.XXBTZEUR.Base+resp.XXBTZEUR.Quote != XXBTZEUR {
-		t.Errorf("AssetPairs() should return valid response, got %+v", resp.XXBTZEUR)
+	if resp.GetAssetPair(XXBTZEUR).Base+resp.GetAssetPair(XXBTZEUR).Quote != XXBTZEUR {
+		t.Errorf("AssetPairs() should return valid response, got %+v", resp.GetAssetPair(XXBTZEUR))
+	}
+
+	if len(resp.GetPairs()) <= 0 {
+		t.Errorf("AssetPairs GetPairs() should return the pair list, got %+v", resp.GetPairs())
 	}
 }
 
 func TestTicker(t *testing.T) {
-	resp, err := publicAPI.Ticker(XXBTZEUR, XXRPZEUR)
+	resp, err := api.Public().Ticker(XXBTZEUR, XXRPZEUR)
 	if err != nil {
 		t.Errorf("Ticker() should not return an error, got %s", err)
 	}
 
-	if resp.XXBTZEUR.OpeningPrice == 0 {
-		t.Errorf("Ticker() should return valid OpeningPrice, got %+v", resp.XXBTZEUR.OpeningPrice)
+	if resp.GetPairTickerInfo(XXBTZEUR).OpeningPrice == 0 {
+		t.Errorf("Ticker() should return valid OpeningPrice, got %+v", resp.GetPairTickerInfo(XXBTZEUR).OpeningPrice)
 	}
 }
 
 func TestOHLC(t *testing.T) {
-	resp, err := publicAPI.OHLC(XXBTZEUR)
+	resp, err := api.Public().OHLC(XXBTZEUR)
 	if err != nil {
 		t.Errorf("OHLC() should not return an error, got %s", err)
 	}
@@ -87,35 +62,8 @@ func TestOHLC(t *testing.T) {
 	}
 }
 
-func TestQueryTime(t *testing.T) {
-	result, err := publicAPI.Query("Time", map[string]string{})
-	resultKind := reflect.TypeOf(result).Kind()
-
-	if err != nil {
-		t.Errorf("Query should not return an error, got %s", err)
-	}
-	if resultKind != reflect.Map {
-		t.Errorf("Query `Time` should return a Map, got: %s", resultKind)
-	}
-}
-
-func TestQueryTicker(t *testing.T) {
-	result, err := publicAPI.Query("Ticker", map[string]string{
-		"pair": "XXBTZEUR",
-	})
-	resultKind := reflect.TypeOf(result).Kind()
-
-	if err != nil {
-		t.Errorf("Query should not return an error, got %s", err)
-	}
-
-	if resultKind != reflect.Map {
-		t.Errorf("Query `Ticker` should return a Map, got: %s", resultKind)
-	}
-}
-
 func TestQueryTrades(t *testing.T) {
-	result, err := publicAPI.Trades(XXBTZEUR, 1495777604391411290)
+	result, err := api.Public().Trades(XXBTZEUR, 1495777604391411290)
 
 	if err != nil {
 		t.Errorf("Trades should not return an error, got %s", err)
@@ -140,7 +88,7 @@ func TestQueryTrades(t *testing.T) {
 func TestQueryDepth(t *testing.T) {
 	pair := "XETHZEUR"
 	count := 10
-	result, err := publicAPI.Depth(pair, count)
+	result, err := api.Public().Depth(pair, count)
 	if err != nil {
 		t.Errorf("Depth should not return an error, got %s", err)
 	}
